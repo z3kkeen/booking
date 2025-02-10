@@ -1,10 +1,12 @@
-'use client'
-import React from "react"
+"use server";
+import MainHeader from "@/components/dash-header";
+import DashMain from "@/components/dash-main";
 
-export default async function dashboard() {
+export default async function Dashboard() {
   return (
-    <div>
-      <h1>Your dashboard</h1>
+    <div className="h-screen w-full bg-sky-100 flex flex-col ">
+      <MainHeader />
+      <DashMain />
     </div>
-  )
-};
+  );
+}
