@@ -62,7 +62,6 @@ export async function createAppointmentSlotsForDay(date: Date) {
 }
 
 export async function getAvailableAppointments(dateValue: string) {
-  console.log("Recieved dateString: ", dateValue);
   const dateString = dateValue;
 
   const session = await auth.api.getSession({
@@ -73,15 +72,9 @@ export async function getAvailableAppointments(dateValue: string) {
     throw new Error("User not authorized");
   }
 
-  console.log("User: ", session.user.name);
-
   const selectedDate = new Date(dateString);
   const startOfDay = new Date(selectedDate.setHours(0, 0, 0, 0));
   const endOfDay = new Date(selectedDate.setHours(23, 59, 59, 999));
-
-  console.log("Selected Date:", selectedDate);
-  console.log("Start of Day:", startOfDay);
-  console.log("End of Day:", endOfDay);
 
   try {
     let appointments = await prisma.appointment.findMany({
@@ -90,7 +83,6 @@ export async function getAvailableAppointments(dateValue: string) {
           gte: startOfDay,
           lte: endOfDay,
         },
-        isBooked: false,
       },
       orderBy: { date: "asc" },
     });

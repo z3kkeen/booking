@@ -17,13 +17,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends { status: string }, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onRowClick?: (row: Row<TData>) => void;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { status: string }, TValue>({
   columns,
   data,
   onRowClick,
@@ -59,8 +59,16 @@ export function DataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
-                onClick={() => onRowClick && onRowClick(row)}
-                className="cursor-pointer hover:bg-muted"
+                onClick={() =>
+                  onRowClick &&
+                  row.original.status !== "Booked" &&
+                  onRowClick(row)
+                }
+                className={`cursor-pointer hover:bg-muted ${
+                  row.original.status === "Booked"
+                    ? "pointer-events-none opacity-50"
+                    : ""
+                }`}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>

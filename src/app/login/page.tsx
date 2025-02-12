@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
+import LoadingSpinner from "@/components/loading-wheel";
 
 export default function SignUp() {
   const [logEmail, setLogEmail] = useState("");
@@ -21,27 +22,28 @@ export default function SignUp() {
   const [signEmail, setSignEmail] = useState("");
   const [signPassword, setSignPassword] = useState("");
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const signIn = async () => {
     const email = logEmail;
     const password = logPassword;
 
-    const { data, error } = await authClient.signIn.email(
+    const { error } = await authClient.signIn.email(
       {
         email,
         password,
       },
       {
-        onRequest: (ctx) => {
-          //show loading
+        onRequest: () => {
+          setLoading(true);
         },
-        onSuccess: (ctx) => {
-          console.log("Login successful: ", ctx.data);
+        onSuccess: () => {
           router.push("/dashboard");
         },
         onError: (ctx) => {
           alert(ctx.error.message);
+          console.error(error);
         },
       }
     );
@@ -51,7 +53,7 @@ export default function SignUp() {
     const email = signEmail;
     const password = signPassword;
 
-    const { data, error } = await authClient.signUp.email(
+    const { error } = await authClient.signUp.email(
       {
         email,
         password,
@@ -60,6 +62,7 @@ export default function SignUp() {
       {
         onRequest: (ctx) => {
           console.log("loading", ctx);
+          setLoading(true);
         },
         onSuccess: (ctx) => {
           console.log("User created: ", ctx.data);
@@ -67,6 +70,7 @@ export default function SignUp() {
         },
         onError: (ctx) => {
           alert(ctx.error.message);
+          console.error(error);
         },
       }
     );
@@ -154,8 +158,9 @@ export default function SignUp() {
                 />
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex gap-4">
               <Button onClick={signIn}>Login</Button>
+              {loading && <LoadingSpinner />}
             </CardFooter>
           </Card>
         </TabsContent>
