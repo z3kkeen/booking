@@ -14,44 +14,55 @@ type AppointmentsTableClientProps = {
 export default function AppointmentsTableClient({
   data,
 }: AppointmentsTableClientProps) {
-  const [selectedAppointmentId, setSelectedAppointmentId] = useState<
-    string | null
-  >(null);
+  const [selectedAppointmentIds, setSelectedAppointmentIds] = useState<
+    string[]
+  >([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleRowClick = (row: any) => {
-    if (row.original.status === "Booked") return;
-    setSelectedAppointmentId(row.original.id);
+    const id = row.original.id;
+    setSelectedAppointmentIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+    console.log("selected appointment(s): ", selectedAppointmentIds);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
     setLoading(true);
-
+    e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    await bookAppointmentAction(formData).then(() => {
-      setLoading(false);
-    });
-
+    formData.set("appointmentIds", selectedAppointmentIds.join(","));
+    await bookAppointmentAction(formData);
+    setSelectedAppointmentIds([]);
     router.refresh();
+    setLoading(false);
   };
 
   return (
-    <div>
-      <div className="max-h-[40vh] overflow-y-auto">
-        <DataTable columns={columns} data={data} onRowClick={handleRowClick} />
-      </div>
-      <form onSubmit={handleSubmit} className="mt-4 flex gap-5">
+    <div className="max-h-[47vh] overflow-y-auto">
+      <DataTable
+        columns={columns}
+        data={data}
+        onRowClick={handleRowClick}
+        selectedIds={selectedAppointmentIds}
+      />
+      <form onSubmit={handleSubmit} className="mt-4">
         <input
           type="hidden"
-          name="appointmentId"
-          value={selectedAppointmentId || ""}
+          name="appointmentIds"
+          value={selectedAppointmentIds.join(",")}
         />
-        <Button type="submit" disabled={!selectedAppointmentId}>
-          Book
-        </Button>
-        {loading && <LoadingBooking />}
+        <div className="flex gap-4">
+          <Button
+            type="submit"
+            disabled={selectedAppointmentIds.length === 0}
+            className="btn btn-primary"
+          >
+            Book
+          </Button>
+          {loading && <LoadingBooking />}
+        </div>
       </form>
     </div>
   );

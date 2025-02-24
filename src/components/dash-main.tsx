@@ -9,12 +9,12 @@ import {
 import MyCalendar from "./calendar";
 import CalAppointments from "./appointments";
 
-export default async function DashMain() {
-  const date = new Date().toISOString();
+export default async function DashMain({ date }) {
+  console.log("date: ", date);
 
   return (
     <div className="h-full m-3 flex items-start gap-2">
-      <MyCalendar />
+      <MyCalendar initialDate={date} />
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Avalible times</CardTitle>

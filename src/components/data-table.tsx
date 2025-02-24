@@ -17,16 +17,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface DataTableProps<TData extends { status: string }, TValue> {
+interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onRowClick?: (row: Row<TData>) => void;
+  selectedIds?: string[];
 }
 
-export function DataTable<TData extends { status: string }, TValue>({
+export function DataTable<TData, TValue>({
   columns,
   data,
   onRowClick,
+  selectedIds = [],
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -55,28 +57,28 @@ export function DataTable<TData extends { status: string }, TValue>({
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                onClick={() =>
-                  onRowClick &&
-                  row.original.status !== "Booked" &&
-                  onRowClick(row)
-                }
-                className={`cursor-pointer hover:bg-muted ${
-                  row.original.status === "Booked"
-                    ? "pointer-events-none opacity-50"
-                    : ""
-                }`}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
+            table.getRowModel().rows.map((row) => {
+              const isSelected = selectedIds.includes(row.original.id);
+              return (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  onClick={() => onRowClick && onRowClick(row)}
+                  className={`cursor-pointer hover:bg-muted ${
+                    isSelected ? "bg-blue-300" : ""
+                  }`}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              );
+            })
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">

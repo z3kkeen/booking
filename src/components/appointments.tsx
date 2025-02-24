@@ -3,19 +3,19 @@ import { getAvailableAppointments } from "@/lib/appointments";
 import AppointmentsTableClient from "./client-appointments";
 import { TimeSlot } from "./columns";
 
-async function getData(date): Promise<TimeSlot[]> {
-  const appointments = await getAvailableAppointments(date);
+async function getData(date: Date): Promise<TimeSlot[]> {
+  const currentDate = new Date(date);
+  const appointments = await getAvailableAppointments(currentDate);
   return appointments.map((appointment) => ({
     id: appointment.id.toString(),
     time: new Date(appointment.date).toLocaleTimeString(),
-    status: appointment.isBooked ? "Booked" : "Avalible",
+    status: appointment.isBooked ? "Booked" : "Available",
+    email: appointment.bookedById || "N/A",
   }));
 }
 
-export default async function CalAppointments({ date }: { date: string }) {
+export default async function CalAppointments({ date }) {
   const data = await getData(date);
-  console.log(data);
-
   return (
     <div>
       <AppointmentsTableClient data={data} />

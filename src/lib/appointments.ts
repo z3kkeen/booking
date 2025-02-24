@@ -3,81 +3,81 @@ import { prisma } from "./prisma";
 import { auth } from "./auth";
 import { headers } from "next/headers";
 
-export async function createAppointmentSlotsForDay(date: Date) {
-  const openingHour = 8;
-  const closingHour = 22;
-  const slotDurationMinutes = 30;
+export async function getAvailableAppointments(selectedDate: Date) {
+  console.log("selected date", selectedDate);
 
   const startOfDay = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    openingHour,
+    selectedDate.getFullYear(),
+    selectedDate.getMonth(),
+    selectedDate.getDate(),
+    0,
     0,
     0,
     0
   );
   const endOfDay = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    closingHour,
-    0,
-    0,
-    0
+    selectedDate.getFullYear(),
+    selectedDate.getMonth(),
+    selectedDate.getDate(),
+    23,
+    59,
+    59,
+    999
   );
 
-  const slots = [];
-  for (
-    let current = new Date(startOfDay);
-    current < endOfDay;
-    current.setMinutes(current.getMinutes() + slotDurationMinutes)
-  ) {
-    slots.push({
-      date: new Date(current),
-      isBooked: false,
-    });
-  }
+  console.log("start of day: ", startOfDay);
+  console.log("end of day: ", endOfDay);
 
-  console.log("Creating slots: ", slots.length);
-
-  await prisma.appointment.createMany({
-    data: slots,
-    skipDuplicates: true,
-  });
-
-  const createdSlots = await prisma.appointment.findMany({
+  let appointments = await prisma.appointment.findMany({
     where: {
       date: {
         gte: startOfDay,
         lte: endOfDay,
       },
-      isBooked: false,
     },
     orderBy: { date: "asc" },
   });
 
-  console.log("Slots after creation:", createdSlots.length);
-  return createdSlots;
-}
+  if (!appointments.length) {
+    const businessStartHour = 8;
+    const businessEndHour = 23;
+    const slotDuration = 30;
 
-export async function getAvailableAppointments(dateValue: string) {
-  const dateString = dateValue;
+    const slots = [];
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+    const current = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      businessStartHour,
+      0,
+      0,
+      0
+    );
+    const endTime = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      businessEndHour,
+      0,
+      0,
+      0
+    );
 
-  if (!session || !session.user || !session.user.id) {
-    throw new Error("User not authorized");
-  }
+    while (current < endTime) {
+      slots.push({
+        date: new Date(current),
+        isBooked: false,
+      });
+      current.setMinutes(current.getMinutes() + slotDuration);
+    }
 
-  const selectedDate = new Date(dateString);
-  const startOfDay = new Date(selectedDate.setHours(0, 0, 0, 0));
-  const endOfDay = new Date(selectedDate.setHours(23, 59, 59, 999));
+    await prisma.appointment.createMany({
+      data: slots,
+      skipDuplicates: true,
+    });
 
-  try {
-    let appointments = await prisma.appointment.findMany({
+    appointments = await prisma.appointment.findMany({
       where: {
         date: {
           gte: startOfDay,
@@ -86,21 +86,9 @@ export async function getAvailableAppointments(dateValue: string) {
       },
       orderBy: { date: "asc" },
     });
-
-    if (!appointments.length) {
-      console.log(
-        "No unbooked appointments found. Attempting to create new slots for:",
-        selectedDate.toDateString()
-      );
-      appointments = await createAppointmentSlotsForDay(selectedDate);
-      console.log("After creation, appointments count:", appointments.length);
-    }
-
-    return appointments;
-  } catch (error) {
-    console.error(error);
-    throw new Error("Failed to fetch appointments");
   }
+
+  return appointments;
 }
 
 export async function bookAppointment(appointmentId: number) {
@@ -125,7 +113,6 @@ export async function bookAppointment(appointmentId: number) {
       where: { id: appointmentId },
       data: {
         isBooked: true,
-        bookedBy: { connect: { id: session.user.id } },
       },
     });
     return updatedAppointment;
@@ -136,12 +123,16 @@ export async function bookAppointment(appointmentId: number) {
 }
 
 export async function bookAppointmentAction(formData: FormData): Promise<void> {
-  const appointmentId = formData.get("appointmentId") as string;
-  if (!appointmentId) return;
+  const appointmentIdsStr = formData.get("appointmentIds") as string;
+  if (!appointmentIdsStr) return;
 
-  try {
-    await bookAppointment(Number(appointmentId));
-  } catch (error) {
-    console.error("Booking failed:", error);
+  const ids = appointmentIdsStr.split(",").map((id) => parseInt(id, 10));
+
+  for (const id of ids) {
+    try {
+      await bookAppointment(id);
+    } catch (error) {
+      console.error("Booking failed for appointment", id, ":", error);
+    }
   }
 }
