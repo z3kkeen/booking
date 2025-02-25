@@ -4,8 +4,6 @@ import { auth } from "./auth";
 import { headers } from "next/headers";
 
 export async function getAvailableAppointments(selectedDate: Date) {
-  console.log("selected date", selectedDate);
-
   const startOfDay = new Date(
     selectedDate.getFullYear(),
     selectedDate.getMonth(),
@@ -24,9 +22,6 @@ export async function getAvailableAppointments(selectedDate: Date) {
     59,
     999
   );
-
-  console.log("start of day: ", startOfDay);
-  console.log("end of day: ", endOfDay);
 
   let appointments = await prisma.appointment.findMany({
     where: {
@@ -135,4 +130,31 @@ export async function bookAppointmentAction(formData: FormData): Promise<void> {
       console.error("Booking failed for appointment", id, ":", error);
     }
   }
+}
+
+export async function getUpcomingAppointments() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || !session.user || !session.user.id) {
+    throw new Error("User not authorized");
+  }
+
+  const userId = session.user.id;
+  const now = new Date().toISOString();
+
+  console.log(now);
+
+  // Query all upcoming appointments booked by this user
+  const appointments = await prisma.appointment.findMany({
+    where: {
+      isBooked: true,
+      bookedById: userId,
+      // date: { gt: now },
+    },
+    orderBy: { date: "asc" },
+  });
+
+  return appointments;
 }

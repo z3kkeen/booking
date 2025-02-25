@@ -2,6 +2,13 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Calendar from "react-calendar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import "react-calendar/dist/Calendar.css";
 
 type ValuePiece = Date | null;
@@ -11,25 +18,31 @@ export default function MyCalendar({ date }) {
     date
   );
   const router = useRouter();
-
   const handleChange = (newValue: Date | Date[]) => {
-    console.log("value: ", value?.toLocaleString());
     const selectedDate = Array.isArray(newValue) ? newValue[0] : newValue;
     setValue(selectedDate);
-    console.log("new date: ", selectedDate.toLocaleString());
-
     router.push(`/dashboard?date=${encodeURIComponent(String(value))}`);
   };
 
   return (
-    <>
-      <Calendar
-        value={value}
-        onChange={setValue}
-        onClickDay={handleChange}
-        selectRange={false}
-        className="rounded-md border bg-white"
-      />
-    </>
+    <div className="rounded-md bg-white shadow p-4">
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Calendar</CardTitle>
+          <CardDescription>
+            Pick which day you want to book an appointment for.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <Calendar
+            value={value}
+            onChange={setValue}
+            onClickDay={handleChange}
+            selectRange={false}
+            className="w-full rounded-md"
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 }

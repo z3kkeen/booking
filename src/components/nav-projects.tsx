@@ -25,28 +25,18 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-export function NavProjects({
-  projects,
-}: {
-  projects: {
-    name: string;
-    url: string;
-    icon: LucideIcon;
-  }[];
-}) {
+export default function NavProjects({ appointments }) {
   const { isMobile } = useSidebar();
+  console.log("appointments: ", appointments);
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Upcoming sessions</SidebarGroupLabel>
       <SidebarMenu>
-        {projects.map((item) => (
-          <SidebarMenuItem key={item.name}>
+        {appointments.map((item) => (
+          <SidebarMenuItem key={item.id}>
             <SidebarMenuButton asChild>
-              <a href={item.url}>
-                <item.icon />
-                <span>{item.name}</span>
-              </a>
+              <SidebarGroup>{appointments.item}</SidebarGroup>
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

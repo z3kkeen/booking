@@ -8,14 +8,11 @@ export default async function Dashboard({
   searchParams: { date?: string };
 }) {
   let selectedDate = new Date().toISOString();
+  const params = await searchParams;
 
-  if (searchParams.date != "undefined") {
-    console.log(searchParams.date);
-
-    selectedDate = searchParams.date!;
+  if (params.date) {
+    selectedDate = params.date!;
   }
-
-  console.log("selected: ", selectedDate);
 
   return (
     <div className="h-screen w-full bg-sky-100 flex flex-col ">

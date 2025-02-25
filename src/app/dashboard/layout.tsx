@@ -1,6 +1,5 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-// import Breadcrumbs from "@/components/breadcrumbs";
-import { AppSidebar } from "@/components/app-sidebar";
+import ServerSidebar from "@/components/sidebar";
 
 export default function DashboardLayout({
   children,
@@ -9,7 +8,7 @@ export default function DashboardLayout({
 }) {
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <ServerSidebar />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );
