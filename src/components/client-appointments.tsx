@@ -6,6 +6,7 @@ import { bookAppointmentAction } from "@/lib/appointments";
 import { useRouter } from "next/navigation";
 import LoadingBooking from "./loading-booking";
 import { Button } from "./ui/button";
+import { Row } from "@tanstack/react-table";
 
 type AppointmentsTableClientProps = {
   data: TimeSlot[];
@@ -20,7 +21,7 @@ export default function AppointmentsTableClient({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleRowClick = (row: any) => {
+  const handleRowClick = (row: Row<TimeSlot>) => {
     const id = row.original.id;
     setSelectedAppointmentIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]

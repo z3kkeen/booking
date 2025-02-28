@@ -1,7 +1,6 @@
 "use client";
 import type * as React from "react";
 import { CardDescription, CardTitle } from "@/components/ui/card";
-import NavProjects from "./nav-projects";
 import { NavUser } from "./nav-user";
 import {
   Sidebar,
@@ -14,9 +13,18 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-export default function AppSidebar({ appointments }) {
-  console.log(appointments);
+interface Appointment {
+  id: number;
+  date: Date | null;
+  isBooked: boolean;
+  bookedById: string | null;
+}
 
+interface AppSidebarProps {
+  appointments: Appointment[];
+}
+
+export default function AppSidebar({ appointments }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-5">
@@ -28,8 +36,8 @@ export default function AppSidebar({ appointments }) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu className="px-2">
-            {appointments.map((item) => {
-              const date = new Date(item.date).toLocaleString();
+            {appointments.map((item: Appointment) => {
+              const date = new Date(item.date!).toLocaleString();
               return <SidebarMenuItem key={item.id}>{date}</SidebarMenuItem>;
             })}
           </SidebarMenu>

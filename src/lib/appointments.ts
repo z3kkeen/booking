@@ -142,16 +142,15 @@ export async function getUpcomingAppointments() {
   }
 
   const userId = session.user.id;
-  const now = new Date().toISOString();
+  const now = new Date();
 
-  console.log(now);
+  console.log("now: ", now);
 
-  // Query all upcoming appointments booked by this user
   const appointments = await prisma.appointment.findMany({
     where: {
       isBooked: true,
       bookedById: userId,
-      // date: { gt: now },
+      date: { gt: new Date(now) },
     },
     orderBy: { date: "asc" },
   });

@@ -1,21 +1,25 @@
 "use server";
 import MainHeader from "@/components/dash-header";
 import DashMain from "@/components/dash-main";
+import { ReactNode } from "react";
 
-export default async function Dashboard({
-  searchParams,
-}: {
-  searchParams: { date?: string };
+export default async function Dashboard(props: {
+  children: ReactNode;
+  searchParams: Promise<{ date: string }>;
 }) {
-  let selectedDate = new Date().toISOString();
-  const params = await searchParams;
+  const params = await props.searchParams;
+  const paramDate = params.date;
+  console.log("param date: ", new Date(paramDate));
 
+  let selectedDate = new Date();
   if (params.date) {
-    selectedDate = params.date!;
+    selectedDate = new Date(params.date);
   }
 
-  return (
-    <div className="h-screen w-full bg-sky-100 flex flex-col ">
+  console.log("selected date: ", selectedDate);
+
+  return Promise.resolve(
+    <div className="h-full m-3 flex flex-col gap-4">
       <MainHeader />
       <DashMain date={selectedDate} />
     </div>
