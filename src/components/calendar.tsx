@@ -10,10 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import "react-calendar/dist/Calendar.css";
+import { DateParam } from "./dash-main";
 
 type ValuePiece = Date | null;
 
-export default function MyCalendar({ date }) {
+export default function MyCalendar({ date }: DateParam) {
   const [value, setValue] = useState<ValuePiece | [ValuePiece, ValuePiece]>(
     date
   );

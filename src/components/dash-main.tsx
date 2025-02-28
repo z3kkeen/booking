@@ -9,7 +9,9 @@ import {
 import MyCalendar from "./calendar";
 import CalAppointments from "./appointments";
 
-export default async function DashMain({ date }) {
+export type DateParam = { date: Date };
+
+export default async function DashMain({ date }: DateParam) {
   return (
     <div className="h-full m-3 flex items-start gap-2">
       <MyCalendar date={date} />

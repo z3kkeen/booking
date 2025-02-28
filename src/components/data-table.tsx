@@ -58,7 +58,7 @@ export function DataTable<TData, TValue>({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => {
-              const isSelected = selectedIds.includes(row.original.id);
+              const isSelected = selectedIds.includes(row.id);
               return (
                 <TableRow
                   key={row.id}

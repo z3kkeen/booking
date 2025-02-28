@@ -1,21 +1,24 @@
 "use server";
 import MainHeader from "@/components/dash-header";
 import DashMain from "@/components/dash-main";
-import { ReactNode } from "react";
+import { JSX } from "react";
 
-export default async function Dashboard(props: {
-  children: ReactNode;
-  searchParams: Promise<{ date: string }>;
-}) {
-  const params = await props.searchParams;
-  const paramDate = params.date;
-  console.log("param date: ", new Date(paramDate));
+type DashboardProps = {
+  params: Promise<object>;
+  searchParams: Promise<{ date?: string }>;
+};
 
-  let selectedDate = new Date();
-  if (params.date) {
-    selectedDate = new Date(params.date);
-  }
+export default async function Dashboard({
+  params,
+  searchParams,
+}: DashboardProps): Promise<JSX.Element> {
+  const awaitedParams = await params;
+  const awaitedSearchParams = await searchParams;
+  console.log(awaitedParams);
 
+  const selectedDate = awaitedSearchParams.date
+    ? new Date(awaitedSearchParams.date)
+    : new Date();
   console.log("selected date: ", selectedDate);
 
   return Promise.resolve(

@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 
 export type TimeSlot = {
   id: string;
-  time: string;
+  time: Date;
   status: "Booked" | "Available";
 };
 
